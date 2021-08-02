@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-final _firebaseAuth = FirebaseAuth.instance;
+final _auth = FirebaseAuth.instance;
 // ignore: camel_case_types
 
 
@@ -28,30 +28,25 @@ class Auth implements AuthBase {
     }
     return giveUser(uid: user.uid);
   }
-
   @override
   Stream<giveUser> get onAuthStateChanged {
-    return _firebaseAuth.authStateChanges().map(_userFromFirebase);
+    return _auth.authStateChanges().map(_userFromFirebase);
   }
-
 
   @override
   Future<giveUser> currentUser() async {
-
-    final user = _firebaseAuth.currentUser;
-
+    final user = _auth.currentUser;
     return _userFromFirebase(user);
   }
 
   @override
   Future<giveUser> signInWithGoogle() async {
-    await Firebase.initializeApp();
     final googleSignIn = GoogleSignIn();
     final googleAccount = await googleSignIn.signIn();
     if (googleAccount != null) {
       final googleAuth = await googleAccount.authentication;
       if (googleAuth.accessToken != null && googleAuth.idToken != null) {
-        final authResult = await _firebaseAuth.signInWithCredential(
+        final authResult = await _auth.signInWithCredential(
           GoogleAuthProvider.credential(
             idToken: googleAuth.idToken,
             accessToken: googleAuth.accessToken,
@@ -72,11 +67,15 @@ class Auth implements AuthBase {
     }
   }
 
+
   @override
   Future<void> signOut() async {
     await Firebase.initializeApp();
-    await _firebaseAuth.signOut();
+    await _auth.signOut();
     final googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
   }
+
+  Future<UserCredential> signInWithCredential(AuthCredential credential) => _auth.signInWithCredential(credential);
+  Future<void> logout() => _auth.signOut();
 }

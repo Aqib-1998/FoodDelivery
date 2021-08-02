@@ -5,6 +5,8 @@ import 'package:food_delivery/Utils/CustomElevatedButton.dart';
 import 'package:food_delivery/Utils/CustomTextFiled.dart';
 import 'package:food_delivery/Utils/TopArea.dart';
 import 'package:food_delivery/Utils/auth.dart';
+import 'package:food_delivery/Utils/auth_bloc.dart';
+import 'package:provider/provider.dart';
 import 'EnterOTPScreen.dart';
 final phoneController = TextEditingController();
 class CheckUser extends StatelessWidget {
@@ -77,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var authBloc = Provider.of<AuthBloc>(context);
     return SafeArea(
       child: GestureDetector(
         onTap: () {
@@ -120,21 +123,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(
                       width: 10,
                     ),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 1,
-                              offset: Offset(1, 2), // changes position of shadow
-                            ),
-                          ],
-                          color: Colors.white),
-                      child: Image.asset('lib/Images/facebk.png',fit: BoxFit.cover,),
+                    InkWell(
+                      onTap: (){
+                        authBloc.loginFacebook();
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 1,
+                                offset: Offset(1, 2), // changes position of shadow
+                              ),
+                            ],
+                            color: Colors.white),
+                        child: Image.asset('lib/Images/facebk.png',fit: BoxFit.cover,),
+                      ),
                     ),
                   ],
                 ),

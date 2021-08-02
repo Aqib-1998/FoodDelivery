@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "Tariq Sabzi Wala",
+                        "Tariq Sabzi Wala ",
                         style: TextStyle(
                             fontSize: 30, fontWeight: FontWeight.w700),
                       ),
