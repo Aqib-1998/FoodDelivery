@@ -39,6 +39,8 @@ dependencies:
   flutter_login_facebook: ^1.0.1
   pinput: ^0.2.6
   provider: ^5.0.0
+  image_picker: ^0.7.2+1
+  cloud_firestore: ^2.4.0
 
 
 

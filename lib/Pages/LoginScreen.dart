@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery/Pages/CreateShopPage.dart';
 import 'package:food_delivery/Pages/HomePage.dart';
 import 'package:food_delivery/Utils/CustomElevatedButton.dart';
 import 'package:food_delivery/Utils/CustomTextFiled.dart';
@@ -9,27 +11,36 @@ import 'package:food_delivery/Utils/auth_bloc.dart';
 import 'package:provider/provider.dart';
 import 'EnterOTPScreen.dart';
 final phoneController = TextEditingController();
-class CheckUser extends StatelessWidget {
+final firestore = FirebaseFirestore.instance;
+final _auth = FirebaseAuth.instance;
+
+class CheckUser extends StatefulWidget {
   final AuthBase auth;
 
   const CheckUser({Key key,@required this.auth}) : super(key: key);
   @override
+  _CheckUserState createState() => _CheckUserState();
+}
+// String newgoogleuser;
+class _CheckUserState extends State<CheckUser> {
+
+  @override
   Widget build(BuildContext context) {
 
+
     return StreamBuilder<giveUser>(
-      stream: auth.onAuthStateChanged,
+      stream: widget.auth.onAuthStateChanged,
       builder: (context,snapshot){
         if(snapshot.connectionState == ConnectionState.active){
           giveUser user = snapshot.data;
           if(user == null){
             return LoginScreen(
-              auth: auth,
+              auth: widget.auth,
             );
           }
           return HomePage(
-            auth: auth,
+            auth: widget.auth,
           );
-
         }else{
           return Scaffold(
             body: Center(
@@ -40,7 +51,6 @@ class CheckUser extends StatelessWidget {
       },
     );
   }
-
 }
 
 
@@ -80,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     var authBloc = Provider.of<AuthBloc>(context);
+
     return SafeArea(
       child: GestureDetector(
         onTap: () {
@@ -216,3 +227,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 //
+
+//
+// Future<dynamic> getData() async {
+//
+//   final DocumentReference document =   FirebaseFirestore.instance.collection("Shop Users").doc(_auth.currentUser.uid);
+//
+//   await document.get().then<dynamic>(( DocumentSnapshot snapshot) async{
+//     setState(() {
+//       newgoogleuser =snapshot.data.toString();
+//     });
+//   });
+// }

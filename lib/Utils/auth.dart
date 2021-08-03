@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 final _auth = FirebaseAuth.instance;
+final firestore = FirebaseFirestore.instance;
 // ignore: camel_case_types
-
+bool newGoogleUser;
 
 class giveUser {
   giveUser({@required this.uid});
@@ -19,6 +20,7 @@ abstract class AuthBase {
   Future<giveUser> currentUser();
   Future<giveUser> signInWithGoogle();
   Future<void> signOut();
+
 }
 
 class Auth implements AuthBase {
@@ -41,6 +43,7 @@ class Auth implements AuthBase {
 
   @override
   Future<giveUser> signInWithGoogle() async {
+
     final googleSignIn = GoogleSignIn();
     final googleAccount = await googleSignIn.signIn();
     if (googleAccount != null) {
@@ -52,8 +55,16 @@ class Auth implements AuthBase {
             accessToken: googleAuth.accessToken,
           ),
         );
+        //to check new user
+        firestore.collection("Shop Users").doc(_auth.currentUser.uid).set({
+          'New user?' : authResult.additionalUserInfo.isNewUser,
+        });
+
+        print("New user = $newGoogleUser");
         return _userFromFirebase(authResult.user);
+
       } else {
+
         throw PlatformException(
           code: 'ERROR_MISSING_GOOGLE_AUTH_TOKEN',
           message: 'Missing Google Auth Token',
@@ -70,7 +81,7 @@ class Auth implements AuthBase {
 
   @override
   Future<void> signOut() async {
-    await Firebase.initializeApp();
+
     await _auth.signOut();
     final googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();

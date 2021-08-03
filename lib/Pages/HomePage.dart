@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _signOut() async {
     try {
       await widget.auth.signOut().then((res) {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen(auth: widget.auth,)),ModalRoute.withName('/'));
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CheckUser(auth: widget.auth,)),ModalRoute.withName('/'));
       });
 
     } catch (e) {}
