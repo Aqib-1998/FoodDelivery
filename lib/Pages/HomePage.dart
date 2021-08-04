@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery/Utils/BottomSheet.dart';
 import 'package:food_delivery/Utils/CustomButton.dart';
 import 'package:food_delivery/Utils/CustomRichText.dart';
 import 'package:food_delivery/Utils/auth.dart';
+import 'package:food_delivery/main.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import 'LoginScreen.dart';
@@ -20,14 +23,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Future<void> _signOut() async {
     try {
+      newUserBool = null;
       await widget.auth.signOut().then((res) {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CheckUser(auth: widget.auth,)),ModalRoute.withName('/'));
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MyApp()),ModalRoute.withName('/'));
       });
 
     } catch (e) {}
   }
 
-
+  final _auth = FirebaseAuth.instance;
+  Future getDocs() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("Shop Users").doc(_auth.currentUser.uid).collection("New User?").get();
+    for (int i = 0; i < querySnapshot.docs.length; i++) {
+      var a = querySnapshot.docs[i];
+      print(a);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -158,8 +169,12 @@ class _HomePageState extends State<HomePage> {
                       ),
                       customButton(
                           'Contact Number',
+
+
                           () => bottomSheet(
-                              context, "0333-3333333", "Contact", "Number")),
+                              context, "0333-3333333", "Contact", "Number")
+
+                      ),
                       SizedBox(
                         height: 10,
                       ),

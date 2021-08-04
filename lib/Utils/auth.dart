@@ -60,7 +60,7 @@ class Auth implements AuthBase {
           'New user?' : authResult.additionalUserInfo.isNewUser,
         });
 
-        print("New user = $newGoogleUser");
+        print("New user = ${authResult.additionalUserInfo.isNewUser}");
         return _userFromFirebase(authResult.user);
 
       } else {
@@ -81,7 +81,6 @@ class Auth implements AuthBase {
 
   @override
   Future<void> signOut() async {
-
     await _auth.signOut();
     final googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();

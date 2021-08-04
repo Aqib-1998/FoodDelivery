@@ -12,8 +12,7 @@ import 'package:provider/provider.dart';
 import 'EnterOTPScreen.dart';
 final phoneController = TextEditingController();
 final firestore = FirebaseFirestore.instance;
-final _auth = FirebaseAuth.instance;
-
+bool newUserBool ;
 class CheckUser extends StatefulWidget {
   final AuthBase auth;
 
@@ -21,8 +20,11 @@ class CheckUser extends StatefulWidget {
   @override
   _CheckUserState createState() => _CheckUserState();
 }
-// String newgoogleuser;
+
+
+
 class _CheckUserState extends State<CheckUser> {
+
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +40,23 @@ class _CheckUserState extends State<CheckUser> {
               auth: widget.auth,
             );
           }
-          return HomePage(
-            auth: widget.auth,
-          );
+          var firebaseUser =  FirebaseAuth.instance.currentUser;
+          void getdata()async{
+            FirebaseFirestore.instance.collection("Shop Users").doc(firebaseUser.uid).get().then((value){
+              newUserBool = value.data()["New user?"];
+              print(newUserBool);
+              setState(() {
+              });
+            } );
+
+          }
+
+          if(newUserBool == null){
+
+            getdata();
+            return Container(color: Colors.white,child: Center(child: CircularProgressIndicator()));
+          }
+         return newUserBool?CreateShopPage(auth: widget.auth):HomePage(auth: widget.auth);
         }else{
           return Scaffold(
             body: Center(
@@ -50,14 +66,9 @@ class _CheckUserState extends State<CheckUser> {
         }
       },
     );
+
   }
 }
-
-
-
-
-
-
 
 
 
