@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery/Pages/EditMenuScreen.dart';
 import 'package:food_delivery/Utils/BackButton.dart';
 import 'package:food_delivery/Utils/CustomElevatedButton.dart';
 import 'package:food_delivery/Utils/CustomRichText.dart';
@@ -7,6 +9,8 @@ import 'package:hexcolor/hexcolor.dart';
 
 import 'AddMenuScreen.dart';
 import 'CreateShopPage.dart';
+
+final FirebaseAuth getUid = FirebaseAuth.instance;
 final ref =  FirebaseFirestore.instance
     .collection("Shop Users")
     .doc(getUid.currentUser.uid)
@@ -120,17 +124,25 @@ class ShopMenu extends StatelessWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [
-                                            Container(
-                                              height: 30,
-                                              width: 30,
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  image: DecorationImage(
-                                                      image: AssetImage(
-                                                          'lib/Images/edt_icon.png'),
-                                                      alignment:
-                                                          Alignment.center,
-                                                      fit: BoxFit.cover)),
+                                            InkWell(
+                                              onTap: (){
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(builder: (context) => EditMenu()),
+                                                );
+                                              },
+                                              child: Container(
+                                                height: 30,
+                                                width: 30,
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    image: DecorationImage(
+                                                        image: AssetImage(
+                                                            'lib/Images/edt_icon.png'),
+                                                        alignment:
+                                                            Alignment.center,
+                                                        fit: BoxFit.cover)),
+                                              ),
                                             ),
                                             SizedBox(
                                               width: 10,
