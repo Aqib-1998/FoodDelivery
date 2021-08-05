@@ -50,7 +50,6 @@ class _CheckUserState extends State<CheckUser> {
             } );
 
           }
-
           if(newUserBool == null){
 
             getdata();

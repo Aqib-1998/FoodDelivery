@@ -1,17 +1,26 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:food_delivery/Utils/BottomSheet.dart';
 import 'package:food_delivery/Utils/CustomButton.dart';
 import 'package:food_delivery/Utils/CustomRichText.dart';
 import 'package:food_delivery/Utils/auth.dart';
 import 'package:food_delivery/main.dart';
 import 'package:hexcolor/hexcolor.dart';
-
+import 'package:image_picker/image_picker.dart';
 import 'LoginScreen.dart';
 import 'OrderDetailsScreen.dart';
 import 'ShopeMenu.dart';
 
+String shopName;
+String shopAddress;
+String shopContact;
+var shopImage;
+String url = '';
 class HomePage extends StatefulWidget {
   final AuthBase auth;
 
@@ -27,8 +36,62 @@ class _HomePageState extends State<HomePage> {
       await widget.auth.signOut().then((res) {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MyApp()),ModalRoute.withName('/'));
       });
-
     } catch (e) {}
+  }
+
+  var firebaseUser =  FirebaseAuth.instance.currentUser;
+  void getUserInfo()async{
+    FirebaseFirestore.instance
+        .collection('Shop Users').doc(firebaseUser.uid)
+        .collection("Shop info").get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((result) {
+       shopName  = result.data()['Shop Name'];
+       shopAddress = result.data()['Shop Address'];
+       shopContact = result.data()['Shop Contact'];
+       shopImage = result.data()['Shop Image'];
+
+      });
+    }).whenComplete((){
+      setState(() {
+      });
+    });
+  }
+  @override
+  void initState() {
+    getUserInfo();
+    print(shopName);
+    setState(() {
+    });
+    // TODO: implement initState
+    super.initState();
+  }
+
+  File imageFile;
+  final picker = ImagePicker();
+  chooseImage(ImageSource source) async{
+    final pickedImage = await picker.getImage(source: source);
+    setState(() {
+      imageFile = File(pickedImage.path);
+    });
+    final FirebaseAuth getUid = FirebaseAuth.instance;
+
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference ref = storage.ref().child(getUid.currentUser.uid);
+    UploadTask uploadTask = ref.putFile(imageFile);
+
+     //url = await ref.getDownloadURL();
+     uploadTask.then((res) async {
+       url =  await res.ref.getDownloadURL();
+       print(url);
+     }).whenComplete((){
+       shopImage = url;
+       setState(() {
+
+       });
+     });
+
+    print(url);
   }
 
   final _auth = FirebaseAuth.instance;
@@ -89,11 +152,11 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        "Tariq Sabzi Wala ",
+                      shopName != null?Text(
+                        shopName,
                         style: TextStyle(
                             fontSize: 30, fontWeight: FontWeight.w700),
-                      ),
+                      ):Text('Fetching data...'),
                       SizedBox(
                         height: 20,
                       ),
@@ -107,11 +170,8 @@ class _HomePageState extends State<HomePage> {
                                 border: Border.all(color: Colors.grey),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10)),
-                                image: DecorationImage(
-                                    alignment: Alignment.center,
-                                    image:
-                                        AssetImage("lib/Images/background.png"),
-                                    fit: BoxFit.cover)),
+                            ),
+                            child: shopImage!=null?Image.network(shopImage,fit: BoxFit.fill,):Image.asset("lib/Images/background.png"),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -132,16 +192,21 @@ class _HomePageState extends State<HomePage> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Container(
-                                  height: 40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              'lib/Images/edt_icon.png'),
-                                          alignment: Alignment.center,
-                                          fit: BoxFit.cover)),
+                                InkWell(
+                                  onTap: (){
+                                    chooseImage(ImageSource.gallery);
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                'lib/Images/edt_icon.png'),
+                                            alignment: Alignment.center,
+                                            fit: BoxFit.cover)),
+                                  ),
                                 ),
                               ],
                             ),
@@ -163,16 +228,15 @@ class _HomePageState extends State<HomePage> {
                       customButton(
                           'Shop Address',
                           () => bottomSheet(
-                              context, "Karachi, Pakistan", "Shop", "Address")),
+                              context, "$shopAddress", "Shop", "Address")),
                       SizedBox(
                         height: 10,
                       ),
                       customButton(
                           'Contact Number',
 
-
                           () => bottomSheet(
-                              context, "0333-3333333", "Contact", "Number")
+                              context, "$shopContact", "Contact", "Number")
 
                       ),
                       SizedBox(

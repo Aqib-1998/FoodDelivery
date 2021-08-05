@@ -2,15 +2,17 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery/Pages/HomePage.dart';
 import 'package:food_delivery/Utils/BackButton.dart';
 import 'package:food_delivery/Utils/CustomElevatedButton.dart';
 import 'package:food_delivery/Utils/CustomTextFiled.dart';
 import 'package:image_picker/image_picker.dart';
-
+var imageDir;
 final fireStore = FirebaseFirestore.instance;
 final FirebaseAuth getUid = FirebaseAuth.instance;
+String url= '';
 //
 // Future<String> createUserFireStoreGoogle(User user) async {
 //   String retVal = "error";
@@ -32,6 +34,7 @@ class _CreateShopPageState extends State<CreateShopPage> {
   final shopAddressController = TextEditingController();
   final shopContactController = TextEditingController();
 
+
   File imageFile;
   final picker = ImagePicker();
   chooseImage(ImageSource source) async{
@@ -39,6 +42,20 @@ class _CreateShopPageState extends State<CreateShopPage> {
      setState(() {
        imageFile = File(pickedImage.path);
      });
+
+     FirebaseStorage storage = FirebaseStorage.instance;
+     Reference ref = storage.ref().child(getUid.currentUser.uid);
+     UploadTask uploadTask = ref.putFile(imageFile);
+
+     //url = await ref.getDownloadURL();
+     uploadTask.then((res) async {
+       url =  await res.ref.getDownloadURL();
+       print(url);
+     }).whenComplete((){
+       setState(() {
+       });
+     });
+      print(url);
   }
   @override
   Widget build(BuildContext context) {
@@ -108,6 +125,8 @@ class _CreateShopPageState extends State<CreateShopPage> {
                   SizedBox(
                     height: 10,
                   ),
+
+                  
                   customTextField("Enter Shop Name", TextInputType.text,
                       shopNameController),
                   SizedBox(
@@ -124,12 +143,13 @@ class _CreateShopPageState extends State<CreateShopPage> {
                     height: 10,
                   ),
                   customElevatedButton("Create Shop", () async {
-                    if(shopContactController.text.isNotEmpty && shopAddressController.text.isNotEmpty && shopNameController.text.isNotEmpty){
+                    if(shopContactController.text.isNotEmpty && shopAddressController.text.isNotEmpty && shopNameController.text.isNotEmpty && url.isNotEmpty){
 
                    await FirebaseFirestore.instance.collection("Shop Users").doc(getUid.currentUser.uid).collection("Shop info").add({
                       "Shop Name":shopNameController.text,
                      "Shop Address":shopAddressController.text,
-                     "Shop Contact":shopContactController.text//your data which will be added to the collection and collection will be created after this
+                     "Shop Contact":shopContactController.text ,
+                     "Shop Image": url//your data which will be added to the collection and collection will be created after this
                     }).then((_){
                       print("collection created");
                     }).catchError((e){
@@ -156,6 +176,8 @@ class _CreateShopPageState extends State<CreateShopPage> {
       ),
     );
   }
+
+
 }
 // try {
 //   await FirebaseFirestore.instance
