@@ -9,6 +9,7 @@ import 'package:food_delivery/Utils/CustomElevatedButton.dart';
 import 'package:food_delivery/Utils/CustomRichText.dart';
 import 'package:food_delivery/Utils/CustomTextFiled.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 
 import 'CreateShopPage.dart';
 
@@ -28,12 +29,13 @@ class _AddMenuState extends State<AddMenu> {
   final picker = ImagePicker();
   chooseImage(ImageSource source) async{
     final pickedImage = await picker.getImage(source: source);
+    String path =  basename(pickedImage.path);
     setState(() {
       imageFile = File(pickedImage.path);
     });
 
     FirebaseStorage storage = FirebaseStorage.instance;
-    Reference ref = storage.ref().child("${getUid.currentUser.uid} + ${pickedImage.path} ");
+    Reference ref = storage.ref().child("${getUid.currentUser.uid}'/ $path ");
     UploadTask uploadTask = ref.putFile(imageFile);
 
     //url = await ref.getDownloadURL();

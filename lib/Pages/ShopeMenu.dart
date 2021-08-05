@@ -7,7 +7,11 @@ import 'package:hexcolor/hexcolor.dart';
 
 import 'AddMenuScreen.dart';
 import 'CreateShopPage.dart';
-
+final ref =  FirebaseFirestore.instance
+    .collection("Shop Users")
+    .doc(getUid.currentUser.uid)
+    .collection('Shop Menus');
+String docId;
 class ShopMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -36,10 +40,7 @@ class ShopMenu extends StatelessWidget {
                 Expanded(
                   child: Container(
                     child: StreamBuilder(
-                        stream: FirebaseFirestore.instance
-                            .collection("Shop Users")
-                            .doc(getUid.currentUser.uid)
-                            .collection('Shop Menus')
+                        stream: ref
                             .snapshots(),
                         builder: (context, snapshot) {
                           String menuName, menuAmount, menuQuantity, menuImage;
@@ -136,10 +137,16 @@ class ShopMenu extends StatelessWidget {
                                             ),
                                             InkWell(
                                               onTap: () async {
-                                                // await FirebaseFirestore.instance
-                                                //     .collection("Shop Users")
-                                                //     .doc(getUid.currentUser.uid)
-                                                //     .collection('Shop Menus').doc().delete().then((value) => null);
+                                                await ref.get().then((value) {
+                                                      value.docs.forEach((element) {
+                                                        docId = element.id;
+                                                      });
+                                                });
+                                                ref.doc(docId).delete().then((value){
+                                                  final snackBar = SnackBar(content: Text('Menu deleted!!'));
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                });
+
                                               },
                                               child: Container(
                                                 height: 30,
